@@ -3,15 +3,58 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Detect whether an image (WebP, AVIF, APNG, GIF, JXL) is animated by inspecting its binary header.",
   "license": "MIT",
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./png": {
+      "types": "./png.d.ts",
+      "default": "./png.js"
+    },
+    "./gif": {
+      "types": "./gif.d.ts",
+      "default": "./gif.js"
+    },
+    "./webp": {
+      "types": "./webp.d.ts",
+      "default": "./webp.js"
+    },
+    "./avif": {
+      "types": "./avif.d.ts",
+      "default": "./avif.js"
+    },
+    "./jxl": {
+      "types": "./jxl.d.ts",
+      "default": "./jxl.js"
+    },
+    "./compose": {
+      "types": "./compose.d.ts",
+      "default": "./compose.js"
+    }
+  },
   "files": [
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "shared.js",
+    "png.js",
+    "png.d.ts",
+    "gif.js",
+    "gif.d.ts",
+    "webp.js",
+    "webp.d.ts",
+    "avif.js",
+    "avif.d.ts",
+    "jxl.js",
+    "jxl.d.ts",
+    "compose.js",
+    "compose.d.ts"
   ],
   "sideEffects": false,
   "scripts": {

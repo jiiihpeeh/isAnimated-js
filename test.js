@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { is_animated, detect_format, isJXL, isAPNG, isAnimatedWebP, isAnimatedAVIF, isAnimatedGIF, isAnimatedJXL } from './index.js';
+import { compose } from './compose.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixtures = path.resolve(__dirname, 'test-fixtures');
@@ -378,6 +379,33 @@ describe('is_animated — JXL', () => {
     });
 });
 
+describe('is_animated — with formats parameter', () => {
+    it('no formats given checks all formats (backward compat)', () => {
+        assert.equal(is_animated(makeAPNG()), true);
+        assert.equal(is_animated(makeGIF(5)), true);
+        assert.equal(is_animated(makeWebP(true)), true);
+        assert.equal(is_animated(makeAVIF(true)), true);
+    });
+
+    it('included format is checked, excluded is not', () => {
+        assert.equal(is_animated(makeAPNG(), ['png']), true);
+        assert.equal(is_animated(makeAPNG(), ['gif']), false);
+    });
+
+    it('only checks listed formats', () => {
+        assert.equal(is_animated(makeWebP(true), ['webp']), true);
+        assert.equal(is_animated(makeWebP(true), ['png', 'gif']), false);
+    });
+
+    it('empty formats array returns false', () => {
+        assert.equal(is_animated(makeAPNG(), []), false);
+    });
+
+    it('multiple formats, one matches', () => {
+        assert.equal(is_animated(makeGIF(5), ['png', 'gif', 'webp']), true);
+    });
+});
+
 describe('is_animated — edge cases', () => {
     it('empty array is not animated', () => {
         assert.equal(is_animated(new Uint8Array()), false);
@@ -423,6 +451,34 @@ describe('real file fixtures (encoded by ffmpeg)', () => {
             assert.equal(anim, expected_animated, `${filename}: expected animated=${expected_animated}, got ${anim}`);
         });
     }
+});
+
+describe('compose', () => {
+    it('compose with no checkers returns false', () => {
+        const check = compose();
+        assert.equal(check(makeAPNG()), false);
+    });
+
+    it('compose with one checker works', () => {
+        const check = compose(isAnimatedGIF);
+        assert.equal(check(makeGIF(5)), true);
+        assert.equal(check(makeAPNG()), false);
+    });
+
+    it('compose with multiple checkers ORs results', () => {
+        const check = compose(isAnimatedGIF, isAPNG);
+        assert.equal(check(makeGIF(5)), true);
+        assert.equal(check(makeAPNG()), true);
+        assert.equal(check(makeWebP(true)), false);
+    });
+
+    it('compose short-circuits on first true', () => {
+        let calls = 0;
+        const track = (fn) => (data) => { calls++; return fn(data); };
+        const check = compose(track(isAnimatedGIF), track(isAPNG));
+        check(makeGIF(5));
+        assert.equal(calls, 1);
+    });
 });
 
 describe('is_animated — real-world scenario', () => {
