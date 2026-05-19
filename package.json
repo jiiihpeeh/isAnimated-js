@@ -3,8 +3,8 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.1.1",
-  "description": "Detect whether an image (WebP, AVIF, APNG) is animated by inspecting its binary header.",
+  "version": "0.2.1",
+  "description": "Detect whether an image (WebP, AVIF, APNG, GIF, JXL) is animated by inspecting its binary header.",
   "license": "MIT",
   "type": "module",
   "main": "index.js",

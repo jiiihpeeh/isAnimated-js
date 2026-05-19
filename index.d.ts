@@ -1,16 +1,14 @@
-/**
- * Detect whether an image is animated by inspecting its binary header.
- * Supports APNG, animated WebP, and animated AVIF.
- *
- * @param data - The first few KB of the image file as a Uint8Array
- * @returns `true` if the image has multiple frames (is animated)
- */
-export function is_animated(data: Uint8Array): boolean;
+export declare const DEFAULT_HEADER_SIZE: 4096;
 
-/**
- * Detect the image format from its binary header.
- *
- * @param data - The first few KB of the image file as a Uint8Array
- * @returns The detected format: "png", "webp", "avif", or "unknown"
- */
-export function detect_format(data: Uint8Array): 'png' | 'webp' | 'avif' | 'gif' | 'unknown';
+export function is_animated(data: Uint8Array): boolean;
+export function detect_format(data: Uint8Array): 'png' | 'webp' | 'avif' | 'gif' | 'jxl' | 'unknown';
+
+export function isJXL(data: Uint8Array): boolean;
+export function isAPNG(data: Uint8Array): boolean;
+export function isAnimatedWebP(data: Uint8Array): boolean;
+export function isAnimatedAVIF(data: Uint8Array): boolean;
+export function isAnimatedGIF(data: Uint8Array): boolean;
+export function isAnimatedJXL(data: Uint8Array): boolean;
+
+export function is_animated_blob(blob: Blob, size?: number): Promise<boolean>;
+export function detect_format_blob(blob: Blob, size?: number): Promise<'png' | 'webp' | 'avif' | 'gif' | 'jxl' | 'unknown'>;

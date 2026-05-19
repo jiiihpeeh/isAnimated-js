@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { is_animated, detect_format } from './index.js';
+import { is_animated, detect_format, isJXL, isAPNG, isAnimatedWebP, isAnimatedAVIF, isAnimatedGIF, isAnimatedJXL } from './index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixtures = path.resolve(__dirname, 'test-fixtures');
@@ -241,6 +241,15 @@ describe('detect_format', () => {
     it('returns unknown for garbage', () => {
         assert.equal(detect_format(new Uint8Array([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])), 'unknown');
     });
+
+    it('detects JXL raw codestream', () => {
+        assert.equal(detect_format(new Uint8Array([0xFF, 0x0A, 0x71])), 'jxl');
+    });
+
+    it('detects JXL container', () => {
+        const sig = new Uint8Array([0x00, 0x00, 0x00, 0x0C, 0x4A, 0x58, 0x4C, 0x20, 0x0D, 0x0A, 0x87, 0x0A]);
+        assert.equal(detect_format(sig), 'jxl');
+    });
 });
 
 describe('is_animated — PNG / APNG', () => {
@@ -336,6 +345,39 @@ describe('is_animated — AVIF', () => {
     });
 });
 
+describe('is_animated — JXL', () => {
+    it('detects isJXL', () => {
+        assert.equal(isJXL(new Uint8Array([0xFF, 0x0A])), true);
+        assert.equal(isJXL(new Uint8Array([0xFF, 0xFF])), false);
+    });
+
+    it('static JXL is not animated', () => {
+        const data = new Uint8Array(fs.readFileSync(path.join(fixtures, 'static.jxl')));
+        assert.equal(isAnimatedJXL(data), false);
+        assert.equal(is_animated(data), false);
+    });
+
+    it('animated JXL is animated', () => {
+        const data = new Uint8Array(fs.readFileSync(path.join(fixtures, 'animated.jxl')));
+        assert.equal(isAnimatedJXL(data), true);
+        assert.equal(is_animated(data), true);
+    });
+
+    it('animated JXL (2 frames, same image) is animated', () => {
+        const data = new Uint8Array(fs.readFileSync(path.join(fixtures, 'animated2.jxl')));
+        assert.equal(isAnimatedJXL(data), true);
+        assert.equal(is_animated(data), true);
+    });
+
+    it('short JXL data is not animated', () => {
+        assert.equal(isAnimatedJXL(new Uint8Array([0xFF, 0x0A])), false);
+    });
+
+    it('non-JXL data is not animated', () => {
+        assert.equal(isAnimatedJXL(new Uint8Array([0xFF, 0xFF, 0xFF])), false);
+    });
+});
+
 describe('is_animated — edge cases', () => {
     it('empty array is not animated', () => {
         assert.equal(is_animated(new Uint8Array()), false);
@@ -366,6 +408,9 @@ describe('real file fixtures (encoded by ffmpeg)', () => {
         ['static.avif',               'avif', false, 'Static AVIF'],
         ['static-lossless.webp',      'webp', false, 'Static lossless WebP'],
         ['static-lossless.avif',      'avif', false, 'Static lossless AVIF'],
+        ['static.jxl',                'jxl',  false, 'Static JXL'],
+        ['animated.jxl',              'jxl',  true,  'Animated JXL (5 frames)'],
+        ['animated2.jxl',             'jxl',  true,  'Animated JXL (2 frames)'],
     ];
 
     for (const [filename, expected_format, expected_animated, label] of files) {
