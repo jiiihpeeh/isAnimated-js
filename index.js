@@ -77,23 +77,86 @@ function isAnimatedAVIF(data) {
 }
 
 /**
+ * @param {Uint8Array} data
+ * @returns {boolean}
+ */
+function isAnimatedGIF(data) {
+    if (data.length < 14) return false;
+
+    const sig = String.fromCharCode(data[0], data[1], data[2]);
+    const ver = String.fromCharCode(data[3], data[4], data[5]);
+    if (sig !== 'GIF' || (ver !== '87a' && ver !== '89a')) return false;
+
+    // Skip header (6) + Logical Screen Descriptor (7)
+    let offset = 13;
+
+    const packed = data[10];
+    const gct_size = packed & 0x80 ? 3 * (1 << ((packed & 0x07) + 1)) : 0;
+    offset += gct_size;
+
+    let frames = 0;
+    while (offset < data.length) {
+        const block = data[offset];
+        if (block === 0x3B) break; // Trailer
+
+        if (block === 0x2C) { // Image Descriptor
+            frames++;
+            if (frames >= 2) return true;
+            offset += 10; // descriptor (1) + 9 bytes fixed
+            // Skip optional Local Color Table
+            if (offset < data.length) {
+                const lct_packed = data[offset - 1];
+                const lct_size = lct_packed & 0x80 ? 3 * (1 << ((lct_packed & 0x07) + 1)) : 0;
+                offset += lct_size;
+            }
+            // Skip LZW min code size + sub-blocks
+            if (offset < data.length) {
+                offset += 1; // LZW min code size
+                while (offset < data.length) {
+                    const sb_size = data[offset];
+                    if (sb_size === 0) { offset += 1; break; }
+                    offset += 1 + sb_size;
+                }
+            }
+        } else if (block === 0x21) { // Extension
+            offset += 2; // introducer (1) + label (1)
+            while (offset < data.length) {
+                const sb_size = data[offset];
+                if (sb_size === 0) { offset += 1; break; }
+                offset += 1 + sb_size;
+            }
+        } else {
+            break; // Unknown block type, stop
+        }
+    }
+    return false;
+}
+
+/**
  * Detect whether an image is animated by inspecting its binary header.
- * Supports APNG, animated WebP, and animated AVIF.
+ * Supports APNG, animated WebP, animated AVIF, and animated GIF.
  *
  * @param {Uint8Array} data - The first few KB of the image file
  * @returns {boolean} `true` if the image has multiple frames (is animated)
  */
 export function is_animated(data) {
-    return isAPNG(data) || isAnimatedWebP(data) || isAnimatedAVIF(data);
+    return isAPNG(data) || isAnimatedWebP(data) || isAnimatedAVIF(data) || isAnimatedGIF(data);
 }
 
 /**
  * Detect the image format from its binary header.
  *
  * @param {Uint8Array} data - The first few KB of the image file
- * @returns {'png'|'webp'|'avif'|'unknown'}
+ * @returns {'png'|'webp'|'avif'|'gif'|'unknown'}
  */
 export function detect_format(data) {
+    if (data.length < 6) return 'unknown';
+
+    const sig = String.fromCharCode(data[0], data[1], data[2]);
+    const ver = String.fromCharCode(data[3], data[4], data[5]);
+
+    if (sig === 'GIF' && (ver === '87a' || ver === '89a')) return 'gif';
+
     if (data.length < 12) return 'unknown';
 
     for (let i = 0; i < 8; i++) {

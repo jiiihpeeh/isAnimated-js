@@ -13,4 +13,4 @@ export function is_animated(data: Uint8Array): boolean;
  * @param data - The first few KB of the image file as a Uint8Array
  * @returns The detected format: "png", "webp", "avif", or "unknown"
  */
-export function detect_format(data: Uint8Array): 'png' | 'webp' | 'avif' | 'unknown';
+export function detect_format(data: Uint8Array): 'png' | 'webp' | 'avif' | 'gif' | 'unknown';

@@ -61,6 +61,43 @@ function makePNGWithIEND() {
     return new Uint8Array(data);
 }
 
+/** Build a GIF with a given number of image frames */
+function makeGIF(frame_count) {
+    const data = [];
+    data.push(...str('GIF89a'));
+    // Logical Screen Descriptor: 200x200, gct follows
+    data.push(200, 0);  // width (little-endian)
+    data.push(200, 0);  // height (little-endian)
+    data.push(0xF7);    // packed: gct=1, color res=7, sorted=0, gct size=7 -> 256 colors
+    data.push(0);       // bg color index
+    data.push(0);       // pixel aspect ratio
+    // Global Color Table: 256 entries of 3 bytes each (black)
+    for (let i = 0; i < 768; i++) data.push(0);
+    // Application extension (Netscape 2.0 loop block)
+    data.push(0x21);                // extension introducer
+    data.push(0xFF);                // extension label
+    data.push(11);                  // block size
+    data.push(...str('NETSCAPE'));
+    data.push(...str('2.0'));
+    data.push(3);                   // sub-block size
+    data.push(1);                   // sub-block id
+    data.push(0, 0);               // loop count
+    data.push(0);                   // block terminator
+    // Image frames
+    for (let f = 0; f < frame_count; f++) {
+        data.push(0x2C);            // image descriptor
+        data.push(0, 0, 0, 0);     // left, top (little-endian pairs)
+        data.push(200, 0);          // width
+        data.push(200, 0);          // height
+        data.push(0x00);            // packed (no local color table, interlace=0)
+        data.push(0x02);            // LZW min code size
+        data.push(2, 0x4C, 0x01);  // minimal sub-block: size(2) + data + terminator
+        data.push(0);               // block terminator
+    }
+    data.push(0x3B); // trailer
+    return new Uint8Array(data);
+}
+
 /** Build a WebP file with a single VP8X chunk */
 function makeWebP(animated) {
     const vp8x_payload = new Uint8Array(10);
@@ -167,6 +204,10 @@ function makeAVIS() {
 // ---- Tests ----
 
 describe('detect_format', () => {
+    it('detects GIF', () => {
+        assert.equal(detect_format(makeGIF(1)), 'gif');
+        assert.equal(detect_format(makeGIF(5)), 'gif');
+    });
     it('detects PNG', () => {
         assert.equal(detect_format(makePNG()), 'png');
     });
@@ -222,6 +263,20 @@ describe('is_animated — PNG / APNG', () => {
     it('truncated PNG (no chunks after IHDR) is not animated', () => {
         const png = makePNG();
         assert.equal(is_animated(png), false);
+    });
+});
+
+describe('is_animated — GIF', () => {
+    it('GIF with 1 frame is not animated', () => {
+        assert.equal(is_animated(makeGIF(1)), false);
+    });
+
+    it('GIF with 5 frames is animated', () => {
+        assert.equal(is_animated(makeGIF(5)), true);
+    });
+
+    it('empty GIF-like data is not animated', () => {
+        assert.equal(is_animated(new Uint8Array([0x47, 0x49, 0x46])), false);
     });
 });
 
@@ -300,6 +355,8 @@ describe('real file fixtures (encoded by ffmpeg)', () => {
 
     const files = [
         ['animated.png',              'png',  true,  'APNG (5 frames)'],
+        ['animated.gif',              'gif',  true,  'Animated GIF (5 frames)'],
+        ['static.gif',                'gif',  false, 'Static GIF (1 frame)'],
         ['animated.webp',             'webp', true,  'Animated WebP (5 frames)'],
         ['animated.avif',             'avif', true,  'Animated AVIF (5 frames)'],
         ['animated-lossless.webp',    'webp', true,  'Animated lossless WebP (5 frames)'],
