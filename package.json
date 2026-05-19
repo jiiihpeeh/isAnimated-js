@@ -1,0 +1,17 @@
+{
+  "name": "is-animated",
+  "version": "0.1.0",
+  "description": "Detect whether an image (WebP, AVIF, APNG) is animated by inspecting its binary header.",
+  "license": "MPL-2.0",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test test.js"
+  }
+}
