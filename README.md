@@ -5,10 +5,10 @@ Detect whether an image is animated by inspecting its binary header.
 Supports **APNG** (animated PNG), **animated GIF**, **animated WebP**, and **animated AVIF**.  
 Pure JS, zero dependencies, works in browsers and Node.js.
 
-## Install
+## Installation
 
 ```sh
-npm install is-animated
+npm install @jiihpeeh/is-animated
 ```
 
 ## Usage
