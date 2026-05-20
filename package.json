@@ -3,59 +3,48 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Detect whether an image (WebP, AVIF, APNG, GIF, JXL) is animated by inspecting its binary header.",
   "keywords": ["animated", "animation", "detect", "image", "webp", "avif", "apng", "gif", "jxl", "is-animated"],
   "license": "MIT",
   "type": "module",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "exports": {
     ".": {
       "types": "./index.d.ts",
       "default": "./index.js"
     },
     "./png": {
-      "types": "./png.d.ts",
-      "default": "./png.js"
+      "types": "./detect/png.d.ts",
+      "default": "./detect/png.js"
     },
     "./gif": {
-      "types": "./gif.d.ts",
-      "default": "./gif.js"
+      "types": "./detect/gif.d.ts",
+      "default": "./detect/gif.js"
     },
     "./webp": {
-      "types": "./webp.d.ts",
-      "default": "./webp.js"
+      "types": "./detect/webp.d.ts",
+      "default": "./detect/webp.js"
     },
     "./avif": {
-      "types": "./avif.d.ts",
-      "default": "./avif.js"
+      "types": "./detect/avif.d.ts",
+      "default": "./detect/avif.js"
     },
     "./jxl": {
-      "types": "./jxl.d.ts",
-      "default": "./jxl.js"
+      "types": "./detect/jxl.d.ts",
+      "default": "./detect/jxl.js"
     },
     "./compose": {
-      "types": "./compose.d.ts",
-      "default": "./compose.js"
+      "types": "./compose/compose.d.ts",
+      "default": "./compose/compose.js"
     }
   },
   "files": [
     "index.js",
     "index.d.ts",
-    "shared.js",
-    "png.js",
-    "png.d.ts",
-    "gif.js",
-    "gif.d.ts",
-    "webp.js",
-    "webp.d.ts",
-    "avif.js",
-    "avif.d.ts",
-    "jxl.js",
-    "jxl.d.ts",
-    "compose.js",
-    "compose.d.ts"
+    "detect/",
+    "compose/"
   ],
   "sideEffects": false,
   "scripts": {

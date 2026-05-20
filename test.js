@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { is_animated, detect_format, isJXL, isAPNG, isAnimatedWebP, isAnimatedAVIF, isAnimatedGIF, isAnimatedJXL } from './index.js';
-import { compose } from './compose.js';
+import { compose } from './compose/compose.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixtures = path.resolve(__dirname, 'test-fixtures');

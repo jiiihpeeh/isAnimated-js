@@ -1,16 +1,16 @@
-export { DEFAULT_HEADER_SIZE } from './shared.js';
-export { isAPNG } from './png.js';
-export { isAnimatedGIF } from './gif.js';
-export { isAnimatedWebP } from './webp.js';
-export { isAnimatedAVIF } from './avif.js';
-export { isJXL, isAnimatedJXL } from './jxl.js';
+export { DEFAULT_HEADER_SIZE } from './detect/shared.js';
+export { isAPNG } from './detect/png.js';
+export { isAnimatedGIF } from './detect/gif.js';
+export { isAnimatedWebP } from './detect/webp.js';
+export { isAnimatedAVIF } from './detect/avif.js';
+export { isJXL, isAnimatedJXL } from './detect/jxl.js';
 
-import { PNG_SIG, DEFAULT_HEADER_SIZE } from './shared.js';
-import { isAPNG } from './png.js';
-import { isAnimatedGIF } from './gif.js';
-import { isAnimatedWebP } from './webp.js';
-import { isAnimatedAVIF } from './avif.js';
-import { isAnimatedJXL } from './jxl.js';
+import { PNG_SIG, DEFAULT_HEADER_SIZE } from './detect/shared.js';
+import { isAPNG } from './detect/png.js';
+import { isAnimatedGIF } from './detect/gif.js';
+import { isAnimatedWebP } from './detect/webp.js';
+import { isAnimatedAVIF } from './detect/avif.js';
+import { isAnimatedJXL } from './detect/jxl.js';
 
 const FORMAT_CHECKERS = {
     png: isAPNG,
