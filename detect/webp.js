@@ -1,3 +1,11 @@
+/**
+ * Check if a WebP image is animated.
+ *
+ * Looks for a `VP8X` chunk with the animation flag (bit 1) or an `ANIM` chunk.
+ *
+ * @param {Uint8Array} data - Binary WebP data.
+ * @returns {boolean} `true` if the image is an animated WebP.
+ */
 export function isAnimatedWebP(data) {
     if (data.length < 12) return false;
     const tag = String.fromCharCode(data[0], data[1], data[2], data[3]);

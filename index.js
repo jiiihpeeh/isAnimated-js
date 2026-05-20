@@ -5,12 +5,16 @@ export { isAnimatedWebP } from './detect/webp.js';
 export { isAnimatedAVIF } from './detect/avif.js';
 export { isJXL, isAnimatedJXL } from './detect/jxl.js';
 
-import { PNG_SIG, DEFAULT_HEADER_SIZE } from './detect/shared.js';
+import { PNG_SIG, DEFAULT_HEADER_SIZE, headerBytes } from './detect/shared.js';
 import { isAPNG } from './detect/png.js';
 import { isAnimatedGIF } from './detect/gif.js';
 import { isAnimatedWebP } from './detect/webp.js';
 import { isAnimatedAVIF } from './detect/avif.js';
 import { isAnimatedJXL } from './detect/jxl.js';
+
+/**
+ * @typedef {'png'|'gif'|'webp'|'avif'|'jxl'} ImageFormat
+ */
 
 const FORMAT_CHECKERS = {
     png: isAPNG,
@@ -20,6 +24,15 @@ const FORMAT_CHECKERS = {
     jxl: isAnimatedJXL,
 };
 
+/**
+ * Determine whether an image (given as raw bytes) is animated.
+ *
+ * Supported formats: PNG/APNG, GIF, WebP, AVIF, JXL.
+ *
+ * @param {Uint8Array} data - Binary image data.
+ * @param {ImageFormat[]} [formats] - Optional filter; only check these formats.
+ * @returns {boolean} `true` if the image is animated.
+ */
 export function is_animated(data, formats) {
     if (formats) {
         return formats.some(f => f in FORMAT_CHECKERS && FORMAT_CHECKERS[f](data));
@@ -27,6 +40,12 @@ export function is_animated(data, formats) {
     return isAPNG(data) || isAnimatedWebP(data) || isAnimatedAVIF(data) || isAnimatedGIF(data) || isAnimatedJXL(data);
 }
 
+/**
+ * Detect the image format from raw bytes.
+ *
+ * @param {Uint8Array} data - Binary image data.
+ * @returns {'png'|'gif'|'webp'|'avif'|'jxl'|'unknown'} The detected format, or `'unknown'`.
+ */
 export function detect_format(data) {
     if (data.length === 0) return 'unknown';
 
@@ -68,14 +87,25 @@ export function detect_format(data) {
     return 'unknown';
 }
 
-async function headerBytes(blob, size = DEFAULT_HEADER_SIZE) {
-    return new Uint8Array(await blob.slice(0, size).arrayBuffer());
-}
-
+/**
+ * Determine whether a `Blob` image is animated by reading its header bytes.
+ *
+ * @param {Blob} blob - The image blob.
+ * @param {number} [size=4096] - Number of header bytes to examine.
+ * @param {ImageFormat[]} [formats] - Optional format filter.
+ * @returns {Promise<boolean>} `true` if the image is animated.
+ */
 export async function is_animated_blob(blob, size = DEFAULT_HEADER_SIZE, formats) {
     return is_animated(await headerBytes(blob, size), formats);
 }
 
+/**
+ * Detect the image format from a `Blob` by reading its header bytes.
+ *
+ * @param {Blob} blob - The image blob.
+ * @param {number} [size=4096] - Number of header bytes to examine.
+ * @returns {Promise<'png'|'gif'|'webp'|'avif'|'jxl'|'unknown'>} The detected format.
+ */
 export async function detect_format_blob(blob, size = DEFAULT_HEADER_SIZE) {
     return detect_format(await headerBytes(blob, size));
 }

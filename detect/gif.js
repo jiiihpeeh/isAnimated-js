@@ -1,3 +1,9 @@
+/**
+ * Check if a GIF image is animated (has 2+ frame image descriptors).
+ *
+ * @param {Uint8Array} data - Binary GIF data.
+ * @returns {boolean} `true` if the image is an animated GIF.
+ */
 export function isAnimatedGIF(data) {
     if (data.length < 14) return false;
 

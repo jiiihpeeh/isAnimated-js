@@ -1,3 +1,11 @@
+/**
+ * Check if an AVIF image is animated.
+ *
+ * Looks for `moov` or `moof` boxes in the ISOBMFF structure.
+ *
+ * @param {Uint8Array} data - Binary AVIF data.
+ * @returns {boolean} `true` if the image is an animated AVIF.
+ */
 export function isAnimatedAVIF(data) {
     if (data.length < 12) return false;
 

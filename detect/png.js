@@ -1,5 +1,11 @@
 import { PNG_SIG } from './shared.js';
 
+/**
+ * Check if a PNG image is animated (APNG) by looking for an `acTL` chunk.
+ *
+ * @param {Uint8Array} data - Binary PNG/APNG data.
+ * @returns {boolean} `true` if the image is an animated PNG.
+ */
 export function isAPNG(data) {
     if (data.length < 8) return false;
     for (let i = 0; i < 8; i++) {

@@ -1,10 +1,24 @@
 import { readJXLBits } from './shared.js';
 
+/**
+ * Parse a raw JXL codestream header and check the animation flag.
+ *
+ * The animation flag is located at a specific bit position in the header's
+ * extra-fields section.
+ *
+ * @param {Uint8Array} data - Raw JXL codestream bytes (not container-wrapped).
+ * @returns {boolean} `true` if the codestream has animation enabled.
+ */
 function isJXLRawAnimated(data) {
     if (data.length < 4) return false;
 
     let boff = 0;
 
+    /**
+     * Checks if there are enough bits remaining to read.
+     * @param {number} n - Number of bits to check for.
+     * @returns {boolean} True if enough bits are available, false otherwise.
+     */
     const needBits = (n) => {
         if (boff + n > (data.length - 2) * 8) return false;
         return true;
@@ -52,6 +66,15 @@ function isJXLRawAnimated(data) {
     return readJXLBits(data, 2, boff, 1) === 1;
 }
 
+/**
+ * Extract the raw JXL codestream from a container-format JXL file.
+ *
+ * Handles `jxlc` (single-box) and `jxlp` (chunked) payloads per the
+ * ISO/IEC 18181-2 container spec.
+ *
+ * @param {Uint8Array} data - Binary JXL container data (starts with JXL signature).
+ * @returns {Uint8Array|null} The raw codestream, or `null` if it could not be extracted.
+ */
 function extractJXLCodestream(data) {
     if (data.length < 12) return null;
 
@@ -116,6 +139,12 @@ function extractJXLCodestream(data) {
     return merged;
 }
 
+/**
+ * Check whether binary data represents a JXL image (raw codestream or container).
+ *
+ * @param {Uint8Array} data - Binary image data.
+ * @returns {boolean} `true` if the data matches a JXL signature.
+ */
 export function isJXL(data) {
     if (data.length < 2) return false;
     if (data[0] === 0xFF && data[1] === 0x0A) return true;
@@ -129,6 +158,14 @@ export function isJXL(data) {
     return false;
 }
 
+/**
+ * Check if a JXL image is animated.
+ *
+ * Supports both raw codestream (`FF 0A`) and container (`JXL `) formats.
+ *
+ * @param {Uint8Array} data - Binary JXL data.
+ * @returns {boolean} `true` if the image is an animated JXL.
+ */
 export function isAnimatedJXL(data) {
     if (data.length < 2) return false;
 
