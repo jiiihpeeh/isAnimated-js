@@ -95,6 +95,17 @@ import { isAnimatedJXL, isJXL } from 'is-animated/jxl';
 
 Each subpath only bundles its own format code plus a minimal shared module.
 
+Minified + gzipped sizes:
+
+| Entry point | Raw | Gzipped |
+|---|---|---|
+| Full library (`is-animated`) | 4.5 KB | 1.7 KB |
+| `is-animated/gif` | 558 B | 323 B |
+| `is-animated/png` | 363 B | 287 B |
+| `is-animated/webp` | 456 B | 316 B |
+| `is-animated/avif` | 300 B | 245 B |
+| `is-animated/jxl` | 2.0 KB | 940 B |
+
 ### `compose(...checkers): (data: Uint8Array) => boolean`
 
 Combine multiple per-format checkers into a single function while keeping tree-shaking:
