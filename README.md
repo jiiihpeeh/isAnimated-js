@@ -60,7 +60,7 @@ Formats not listed are skipped. Unknown format names are silently ignored.
 | **GIF** | Counts image descriptors (`0x2C`) in the block structure |
 | **WebP** | Checks the VP8X chunk animation flag (bit 1) or looks for an `ANIM` chunk |
 | **AVIF** | Looks for `moov` or `moof` boxes in the ISOBMFF container |
-| **JXL** | Parses the codestream header to read the `have_animation` flag (raw codestream); counts `jxlp` boxes (container format) |
+| **JXL** | Parses the codestream header for the animation flag; extracts codestream from ISOBMFF boxes (`jxlc` / `jxlp`) for container format |
 
 ### `detect_format(data: Uint8Array): 'png' | 'gif' | 'webp' | 'avif' | 'jxl' | 'unknown'`
 
