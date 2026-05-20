@@ -16,6 +16,11 @@ function isJXLRawAnimated(data) {
     const HEADER_START = 2;
     let boff = 0;
 
+    /**
+     * Checks if there are enough bits remaining to read.
+     * @param {number} n - Number of bits to check for.
+     * @returns {boolean} True if enough bits are available, false otherwise.
+     */
     const needBits = (n) => {
         if (boff + n > (data.length - HEADER_START) * 8) return false;
         return true;
