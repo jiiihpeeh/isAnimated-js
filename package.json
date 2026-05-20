@@ -3,8 +3,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Detect whether an image (WebP, AVIF, APNG, GIF, JXL) is animated by inspecting its binary header.",
+  "keywords": ["animated", "animation", "detect", "image", "webp", "avif", "apng", "gif", "jxl", "is-animated"],
   "license": "MIT",
   "type": "module",
   "main": "index.js",
