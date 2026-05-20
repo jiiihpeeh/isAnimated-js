@@ -11,59 +11,56 @@ import { readJXLBits } from './shared.js';
  */
 function isJXLRawAnimated(data) {
     if (data.length < 4) return false;
+    if (data[0] !== 0xFF || data[1] !== 0x0A) return false;
 
+    const HEADER_START = 2;
     let boff = 0;
 
-    /**
-     * Checks if there are enough bits remaining to read.
-     * @param {number} n - Number of bits to check for.
-     * @returns {boolean} True if enough bits are available, false otherwise.
-     */
     const needBits = (n) => {
-        if (boff + n > (data.length - 2) * 8) return false;
+        if (boff + n > (data.length - HEADER_START) * 8) return false;
         return true;
     };
 
     if (!needBits(1)) return false;
-    const small = readJXLBits(data, 2, boff, 1); boff += 1;
+    const small = readJXLBits(data, HEADER_START, boff, 1); boff += 1;
     if (small) {
         if (!needBits(5)) return false;
-        readJXLBits(data, 2, boff, 5); boff += 5;
+        readJXLBits(data, HEADER_START, boff, 5); boff += 5;
         if (!needBits(3)) return false;
-        const ratio = readJXLBits(data, 2, boff, 3); boff += 3;
+        const ratio = readJXLBits(data, HEADER_START, boff, 3); boff += 3;
         if (ratio === 0) {
             if (!needBits(5)) return false;
-            readJXLBits(data, 2, boff, 5); boff += 5;
+            readJXLBits(data, HEADER_START, boff, 5); boff += 5;
         }
     } else {
         if (!needBits(2)) return false;
-        const ysel = readJXLBits(data, 2, boff, 2); boff += 2;
+        const ysel = readJXLBits(data, HEADER_START, boff, 2); boff += 2;
         const bits = [9, 13, 18, 30];
         if (!needBits(bits[ysel])) return false;
-        readJXLBits(data, 2, boff, bits[ysel]); boff += bits[ysel];
+        readJXLBits(data, HEADER_START, boff, bits[ysel]); boff += bits[ysel];
         if (!needBits(3)) return false;
-        const ratio = readJXLBits(data, 2, boff, 3); boff += 3;
+        const ratio = readJXLBits(data, HEADER_START, boff, 3); boff += 3;
         if (ratio === 0) {
             if (!needBits(2)) return false;
-            const xsel = readJXLBits(data, 2, boff, 2); boff += 2;
+            const xsel = readJXLBits(data, HEADER_START, boff, 2); boff += 2;
             if (!needBits(bits[xsel])) return false;
-            readJXLBits(data, 2, boff, bits[xsel]); boff += bits[xsel];
+            readJXLBits(data, HEADER_START, boff, bits[xsel]); boff += bits[xsel];
         }
     }
 
     if (!needBits(1)) return false;
-    const allDefault = readJXLBits(data, 2, boff, 1); boff += 1;
+    const allDefault = readJXLBits(data, HEADER_START, boff, 1); boff += 1;
     if (allDefault) return false;
 
     if (!needBits(1)) return false;
-    const extraFields = readJXLBits(data, 2, boff, 1); boff += 1;
+    const extraFields = readJXLBits(data, HEADER_START, boff, 1); boff += 1;
     if (!extraFields) return false;
 
     if (!needBits(6)) return false;
-    readJXLBits(data, 2, boff, 3); boff += 3;
-    readJXLBits(data, 2, boff, 1); boff += 1;
-    readJXLBits(data, 2, boff, 1); boff += 1;
-    return readJXLBits(data, 2, boff, 1) === 1;
+    readJXLBits(data, HEADER_START, boff, 3); boff += 3;
+    readJXLBits(data, HEADER_START, boff, 1); boff += 1;
+    readJXLBits(data, HEADER_START, boff, 1); boff += 1;
+    return readJXLBits(data, HEADER_START, boff, 1) === 1;
 }
 
 /**

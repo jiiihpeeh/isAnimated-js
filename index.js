@@ -10,7 +10,7 @@ import { isAPNG } from './detect/png.js';
 import { isAnimatedGIF } from './detect/gif.js';
 import { isAnimatedWebP } from './detect/webp.js';
 import { isAnimatedAVIF } from './detect/avif.js';
-import { isAnimatedJXL } from './detect/jxl.js';
+import { isJXL, isAnimatedJXL } from './detect/jxl.js';
 
 /**
  * @typedef {'png'|'gif'|'webp'|'avif'|'jxl'} ImageFormat
@@ -49,16 +49,7 @@ export function is_animated(data, formats) {
 export function detect_format(data) {
     if (data.length === 0) return 'unknown';
 
-    const sig2 = data[0] === 0xFF && data[1] === 0x0A;
-    if (sig2) return 'jxl';
-
-    if (data.length >= 12) {
-        if (data[0] === 0x00 && data[1] === 0x00 && data[2] === 0x00 && data[3] === 0x0C &&
-            data[4] === 0x4A && data[5] === 0x58 && data[6] === 0x4C && data[7] === 0x20 &&
-            data[8] === 0x0D && data[9] === 0x0A && data[10] === 0x87 && data[11] === 0x0A) {
-            return 'jxl';
-        }
-    }
+    if (isJXL(data)) return 'jxl';
 
     if (data.length < 6) return 'unknown';
 
